@@ -1,0 +1,34 @@
+#built application files
+*.apk
+*.ap_
+
+# files for the dex VM
+*.dex
+
+# Java class files
+*.class
+
+# generated files
+bin/
+gen/
+
+# Local configuration file (sdk path, etc)
+local.properties
+
+# Windows thumbnail db
+Thumbs.db
+
+# OSX files
+.DS_Store
+
+# Eclipse project files
+.classpath
+.project
+
+# Android Studio
+.gradle
+build/
+*.iml
+.idea/libraries/support_v4_21_0_3.xml
+.idea/workspace.xml
+.idea/libraries/hellocharts_library_1_5_3.xml

@@ -1,0 +1,41 @@
+{
+  "name": "sleepaggregator",
+  "_version": 8.2,
+  "tables": [
+    {
+      "name": "result",
+      "columns": [
+        { "name": "startdate", "dataType": "TEXT"},
+        { "name": "enddate", "dataType": "TEXT"},
+        { "name": "prob", "dataType": "REAL"}
+      ]
+    },
+    {
+      "name": "state",
+      "columns": [
+       { "name": "inPeriod", "dataType": "INTEGER"},
+       { "name": "newTime", "dataType": "TEXT"},
+       { "name": "oldTime", "dataType": "TEXT"},
+       { "name": "oldProb", "dataType": "REAL"}
+      ]
+    },
+    {
+      "name": "position",
+      "columns": [
+       { "name": "pos", "dataType": "INTEGER"}
+      ]
+    }
+  ],
+  "dependencies": [
+          [
+              {
+                  "name": "sleepstationary",
+                  "version": 3.1
+              }
+          ]
+      ],
+      "task" : {
+        "type" : "interval",
+        "value": "1"
+  }
+}

@@ -23,6 +23,8 @@ public class Aggregator implements IScheduledTask{
     Uri resulturi = Uri.parse(DBAccessContract.DBACCESS_CONTENTPROVIDER + "sleepaggregator_result");
     Uri positionuri = Uri.parse(DBAccessContract.DBACCESS_CONTENTPROVIDER + "sleepaggregator_position");
     ContentResolver contentResolver;
+
+    SimpleDateFormat sdf  = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
     public Aggregator(Context context)
     {
         contentResolver = context.getContentResolver();
@@ -79,17 +81,21 @@ public class Aggregator implements IScheduledTask{
             }
         }while(data.moveToNext());
         data.close();
-        deleteState();
-        if(oldProb > 0.0f)
-            insertState(inPeriod, endDate, startDate, oldProb);
+
+        insertState(inPeriod, endDate, startDate, oldProb);
         updatePos(toReportPos);
     }
     private void updatePos(int pos)
     {
-        contentResolver.delete(positionuri, "1=1", null);
         ContentValues values = new ContentValues();
         values.put("pos", pos);
-        contentResolver.insert(positionuri, values);
+        Cursor cursor = contentResolver.query(positionuri, new String[]{"pos"}, null, null, null);
+        if (cursor.getCount() > 0) {
+            contentResolver.update(positionuri, values, "1=1", null);
+        } else {
+            contentResolver.insert(positionuri, values);
+        }
+        cursor.close();
     }
 
     private void initState() {
@@ -109,26 +115,28 @@ public class Aggregator implements IScheduledTask{
             oldProb = 0.0f;
             inPeriod = false;
         }
+        cursor.close();
     }
 
     private void insertState(boolean inPeriod, Date oldTime, Date newTime, float oldProb)
     {
-        SimpleDateFormat sdf  = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+
         ContentValues values = new ContentValues();
         values.put("inPeriod", inPeriod ? 1 : 0);
         values.put("newTime", sdf.format(newTime));
         values.put("oldTime", sdf.format(oldTime));
         values.put("oldProb", oldProb);
-        contentResolver.insert(stateuri, values);
-    }
-    private void deleteState()
-    {
-        contentResolver.delete(stateuri, "1=1", null);
+        Cursor cursor = contentResolver.query(stateuri, new String[]{"inPeriod", "newTime", "oldTime", "oldProb"}, null, null, null);
+        if (cursor.getCount() > 0) {
+            contentResolver.update(stateuri, values, "1=1", null);
+        } else {
+            contentResolver.insert(stateuri, values);
+        }
+        cursor.close();
     }
     private void reportRow(Date startDate, Date endDate, float prob)
     {
         ContentValues values = new ContentValues();
-        SimpleDateFormat sdf  = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
         values.put("startdate",sdf.format(startDate));
         values.put("enddate" , sdf.format(endDate));
         values.put("prob", prob);
@@ -137,20 +145,10 @@ public class Aggregator implements IScheduledTask{
     private Cursor getData()
     {
         Uri uri = Uri.parse(DBAccessContract.DBACCESS_CONTENTPROVIDER + "sleepstationary_sleepcalc");
-        int pos = getLastPos();
         //_id prob time
-        Cursor cursor = contentResolver.query(uri, new String[]{"_id", "prob", "time"}, null, null, "_id");
-
-        if(pos == -1)
-        {
-            if(cursor.moveToFirst())
-            {
-                return cursor;
-            }
-        }
-        else if(cursor.moveToPosition(getLastPos()))
+        Cursor cursor = contentResolver.query(uri, new String[]{"_id", "prob", "time"}, "_id > " + getLastPos(), null, "_id");
+        if(cursor.moveToFirst())
             return cursor;
-
         return null;
     }
 
@@ -173,10 +171,9 @@ public class Aggregator implements IScheduledTask{
     }
 
     private Date convertTimeString(String s){
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
         Date convertedTime = new Date();
         try {
-            convertedTime = dateFormat.parse(s);
+            convertedTime = sdf.parse(s);
         }catch (ParseException e){
             e.printStackTrace();
         }

@@ -1,6 +1,6 @@
 {
   "name": "sleepaggregator",
-  "_version": 8.3,
+  "_version": 8.6,
   "tables": [
     {
       "name": "result",
@@ -30,7 +30,7 @@
           [
               {
                   "name": "sleepstationary",
-                  "version": 3.1
+                  "version": 3.2
               }
           ]
       ],

@@ -54,15 +54,16 @@ public class Aggregator implements IScheduledTask{
                 inPeriod = true;
             }
             //still in period
-            else if(prob > oldProb && inPeriod)
+            else if(prob + 0.1f > oldProb && inPeriod)
             {
-                oldProb = prob;
+                if(prob > oldProb)
+                    oldProb = prob;
                 endDate = convertTimeString(time);
             }
             //end of period
             else if(prob < oldProb && inPeriod)
             {
-                if(prob > 0.1f) {
+                if(oldProb > 0.1f) {
                     if((endDate.getTime()-startDate.getTime()) > 1000*10*60)
                         reportRow(startDate, endDate, oldProb);
                 }

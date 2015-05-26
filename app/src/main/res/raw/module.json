@@ -36,6 +36,6 @@
       ],
       "task" : {
         "type" : "interval",
-        "value": "1"
+        "value": "3"
   }
 }
